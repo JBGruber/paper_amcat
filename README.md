@@ -12,4 +12,5 @@ These are:
 - `amcat4docker`: <https://github.com/ccs-amsterdam/amcat4docker>
 - `amcat4py`: <https://github.com/ccs-amsterdam/amcat4py>
 - `amcat4r`: <https://github.com/ccs-amsterdam/amcat4r>
+- `middlecat`: <https://github.com/ccs-amsterdam/middlecat>
 

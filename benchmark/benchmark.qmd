@@ -11,6 +11,7 @@ format: html
 library(tidyverse)
 library(dataverse)
 library(amcat4r)
+start_time <- Sys.time() # record for session info
 ```
 
 ## Obtaining the data
@@ -208,3 +209,12 @@ res |>
 ```{r}
 autoplot(res, type = "ridge")
 ```
+
+# Session Info
+
+```{r}
+sessionInfo()
+start_time
+Sys.time() - start_time
+```
+
