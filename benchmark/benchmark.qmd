@@ -1,0 +1,210 @@
+---
+title: "AmCAT Benchmark"
+format: html
+---
+
+# Setting up the environment
+
+```{r}
+# remotes::install_github("JBGruber/dataverse-client-r") # I use a fork of the package which has the option return_url
+# remotes::install_github("ccs-amsterdam/amcat4r")
+library(tidyverse)
+library(dataverse)
+library(amcat4r)
+```
+
+## Obtaining the data
+
+```{r}
+#| echo: false
+Sys.setenv("DATAVERSE_SERVER" = "dataverse.harvard.edu")
+ds <- get_dataset("doi:10.7910/DVN/ZY3RV7")
+
+for (i in seq_along(ds$files$id)) {
+  destfile <- file.path("data", ds$files$filename[i])
+  if (!file.exists(destfile)) {
+    curl::curl_download(get_file_by_id(ds$files$id[i], 
+                                       dataset = "doi:10.7910/DVN/ZY3RV7", 
+                                       return_url = TRUE), 
+                      destfile = destfile, 
+                      quiet = FALSE)
+  }
+}
+
+parlee <- map(list.files("data", "csv", full.names = TRUE), function(f) {
+  dat <- rio::import(f) |> 
+    mutate(date = lubridate::dmy(date), 
+           title = paste0("date: ", date, " speech: ", speechnumber, " sentence: ", sentencenumber))|> 
+    mutate(cmp_party = as.character(cmp_party))
+}) |> 
+  bind_rows() |> 
+  # drop superfluous columns
+  select(-iso3country.1, -parliament.1, -speaker_uri)
+```
+
+## Start AmCAT containers
+
+```{bash}
+curl -O https://raw.githubusercontent.com/ccs-amsterdam/amcat4docker/main/docker-compose.yml
+docker compose up -d
+```
+
+## Upload files to local AmCAT
+
+```{r}
+# login to local instance
+amcat_login("http://localhost/amcat")
+
+indx_rem <- list_indexes()
+
+if (!"parlee" %in% indx_rem$id) {
+  create_index(index = "parlee", 
+               name = paste0("ParlEE plenary speeches data set"), 
+               description = "See https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/ZY3RV7")
+  
+  fields <- list(
+    speechnumber = "double",
+    paragraphnumber = "double",
+    instance_id = "double",
+    sentencenumber = "double",
+    parliament = "keyword",
+    iso3country = "keyword",
+    speakerrole = "keyword",
+    eu = "double",
+    pilcyarea = "double",
+    policyarea = "double",
+    chair = "keyword",
+    speaker = "keyword",
+    party = "keyword",
+    cmp_party = "text",
+    agenda = "text"
+  )
+  
+  set_fields("parlee", fields = fields)
+}
+
+upload_documents("parlee", documents = parlee, chunk_size = 500, verbose = TRUE)
+```
+
+## Upload files to opted.amcat.nl (not executed)
+
+```{r}
+# login to local instance
+amcat_login("https://opted.amcat.nl/amcat")
+
+indx_rem <- list_indexes()
+
+if (!"parlee" %in% indx_rem$id) {
+  create_index(index = "parlee", 
+               name = paste0("ParlEE plenary speeches data set"), 
+               description = "See https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/ZY3RV7")
+  
+  fields <- list(
+    speechnumber = "double",
+    paragraphnumber = "double",
+    instance_id = "double",
+    sentencenumber = "double",
+    parliament = "keyword",
+    iso3country = "keyword",
+    speakerrole = "keyword",
+    eu = "double",
+    pilcyarea = "double",
+    policyarea = "double",
+    chair = "keyword",
+    speaker = "keyword",
+    party = "keyword",
+    cmp_party = "text",
+    agenda = "text"
+  )
+  
+  set_fields("parlee", fields = fields)
+}
+
+upload_documents("parlee", documents = parlee, chunk_size = 500, verbose = TRUE)
+```
+
+# Speed Comparison
+
+```{r}
+# local
+local <- function() {
+  dat <- rio::import("data/ParlEE_DE_plenary_speeches.csv") |> 
+    mutate(date = dmy(date)) 
+  
+  dat |> 
+    filter(str_detect(text, "\\bmigra.*\\b|\\bflucht.*\\b|\\basyl.*\\b")) |> 
+    count(date) |> 
+    ggplot(aes(x = date, y = n)) +
+    geom_line()
+}
+
+# amcat running locally
+amcat_query_local <- function() {
+  amcat_login("http://localhost/amcat")
+  query_documents("parlee", 
+                  queries = "text:migra* OR text:flucht* OR text:asyl*", 
+                  fields = NULL, # would be faster if fields were excluded
+                  filters	= list(iso3country = "DE"),
+                  per_page = 10000, 
+                  max_pages = Inf) |> 
+    count(date) |>
+    ggplot(aes(x = date, y = n)) +
+    geom_line()
+}
+
+# amcat running remotely
+amcat_query_remote <- function() {
+  amcat_login("https://opted.amcat.nl/amcat")
+  query_documents("parlee", 
+                  queries = "text:migra* OR text:flucht* OR text:asyl*", 
+                  fields = NULL, # would be faster if fields were excluded
+                  filters	= list(iso3country = "DE"),
+                  per_page = 10000, 
+                  max_pages = Inf) |> 
+    count(date) |>
+    ggplot(aes(x = date, y = n)) +
+    geom_line()
+}
+
+# just filter
+in_memory <- function(data) {
+  data |> 
+    filter(str_detect(text, regex("\\bmigra.*\\b|\\bflucht.*\\b|\\basyl.*\\b", ignore_case = TRUE))) |> 
+    count(date) |>
+    ggplot(aes(x = date, y = n)) +
+    geom_line()
+}
+
+dat <- rio::import("data/ParlEE_DE_plenary_speeches.csv") |> 
+  mutate(date = dmy(date)) 
+
+res <- bench::mark(
+  local = local(),
+  amcat_query_local = amcat_query_local(),
+  amcat_query_remote = amcat_query_remote(),
+  in_memory = in_memory(dat),
+  check = FALSE, 
+  min_iterations = 10
+)
+saveRDS(res, "data/benchmark.rds")
+```
+
+## Plot
+
+```{r}
+res |> 
+  unnest(c(time, gc)) |> 
+  mutate(expression = as.character(expression),
+         median = as.numeric(median)) |> 
+  ggplot(aes(x = mean(median), y = expression, fill = expression)) +
+  geom_col(show.legend = FALSE) +
+  geom_errorbar(aes(xmin = min(median), xmax = max(median), y = expression, fill = expression)) +
+  labs(x = NULL, y = NULL, title = "Median execution time in seconds for 10 runs") +
+  theme_minimal() +
+  scale_fill_brewer(type = "qual", palette = 4) +
+  scale_x_continuous(labels = function(x) paste(x / 10, "s"))
+```
+
+```{r}
+autoplot(res, type = "ridge")
+```

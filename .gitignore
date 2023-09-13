@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+benchmark/data/
+benchmark/docker-compose.yml
+benchmark/README.md
+paper/paper.pdf
+paper/paper.jats
+paper/mediaold/

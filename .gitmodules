@@ -1,0 +1,21 @@
+[submodule "amcat4"]
+	path = amcat4
+	url = https://github.com/ccs-amsterdam/amcat4.git
+[submodule "amcat4client"]
+	path = amcat4client
+	url = https://github.com/ccs-amsterdam/amcat4client.git
+[submodule "amcat4py"]
+	path = amcat4py
+	url = https://github.com/ccs-amsterdam/amcat4py.git
+[submodule "amcat4actioncat"]
+	path = amcat4actioncat
+	url = https://github.com/ccs-amsterdam/amcat4actioncat.git
+[submodule "amcat4docker"]
+	path = amcat4docker
+	url = https://github.com/ccs-amsterdam/amcat4docker.git
+[submodule "amcat4r"]
+	path = amcat4r
+	url = https://github.com/ccs-amsterdam/amcat4r.git
+[submodule "middlecat"]
+	path = middlecat
+	url = https://github.com/ccs-amsterdam/middlecat.git
