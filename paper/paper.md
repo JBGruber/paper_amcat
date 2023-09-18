@@ -28,6 +28,17 @@ date: 15 September 2023
 bibliography: paper.bib
 ---
 
+# Statement of need
+
+Sharing a collection of text data with other researchers comes with slightly different needs than sharing, for example, a survey data set.
+Researchers who want to use a data set for secondary analysis might want to explore it first to see if it contains relevant data;
+they might then want to filter said data set using keywords or search queries;
+text data nowadays come with limitations for re-distribution connected to copyright or privacy concerns, making alternative distribution avenues (such as only sharing metadata or pre-processed versions of text) necessary.
+Current infrastructure for sharing data, such as the Dataverse, were not built with these needs in mind, as they do not generally apply to the much smaller data sets that, for example, survey researchers use.
+In the current iteration of the *Amsterdam Content Analysis Toolkit* (AmCAT), we focused on filling these needs of the text-as-data community.
+In a time when access to data becomes more difficult due to APIs of social media platforms being shut down and media outlets starting to defend themselves more rigorously against scraping, the importance of sharing corpora for secondary analysis has suddenly surged.
+With the infrastructure software we present here, we hope to encourage the research community to embrace more widespread sharing of text data.
+
 # Summary
 
 The Amsterdam Content Analysis Toolkit (AmCAT) has been in development in various guises since about 2001 as a text research / content analysis platform.
@@ -42,27 +53,15 @@ For example, \autoref{fig:dashboard} shows an alternative interface developed on
 
 ![OPTED dahsboard built on AmCAT.\label{fig:dashboard}](media/dashboard.png)
 
-## AmCAT: not just for storage
+## Web Interface and API
 
-Currently one of the most used options for sharing corpora is the (Harvard) Dataverse.
-It allows researchers to archive data sets for free and obtain a Digital Object Identifier (DOI), which makes them easily citable.
-However, while it allows researchers to upload a readme and description document to introduce the data, there is no way to explore a data set before downloading it.
-For most data sets, this is no problem as data files are only a few megabytes at most.
-Typical text corpora, like the ParlEE data set [@ParlEE2022] shown in \autoref{fig:parlee}, contain several gigabytes and take minutes or sometimes hours to download.
-And compared to this minor nuisance, it constitutes a problem when a dataset is not publicly available, but the data owners' permission must be requested for a new researcher instead or a set of, e.g., URLs, must be rehydrated^[Scraped or requested from an API again.] before using the data is possible.
-
-![ParlEE data set on Dataverse.\label{fig:parlee}](media/parlee.png)
-
-### User interface
-
-In AmCAT, it is instead possible to easily explore data before committing to it.
-\autoref{fig:migra_parlee} shows the ParlEE data set [@ParlEE2022] once again, but this time the data is filtered for speeches in the Austrian parliament that feature a term connected to migration. 
+Instead of just showing how many documents are contained in a corpus, AmCAT makes it possible to easily explore data before committing to it.
+\autoref{fig:migra_parlee} shows the ParlEE data set [@ParlEE2022], which consists of several gigabytes of csv files and can be downloaded from the Harvard Dataverse.
+In AmCAT, it can be explored by, for example, filtering for speeches in the Austrian parliament that feature a term connected to migration. 
 The example shows that there is a stark increase in mentions of the terms in 2015, which is probably interesting researchers focused on the migration debate.
 Queries are made in *Elasticsearch*'s "mini-language" for query strings, which is widely used and [well documented](https://web.archive.org/web/20230827002715/https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html).
 
 ![ParlEE data set on AmCAT web interface.\label{fig:migra_parlee}](media/migra_parlee.png)
-
-### API
 
 Besides the web interface, we offer a fully featured REST API and API wrapper packages for `R` and `Python`.
 We also include OpenAPI specifications in the default installation, which makes it easy to develop other wrappers.
@@ -91,24 +90,6 @@ query_documents("parlee", # name of the index
 
 The API makes AmCAT a valuable asset for power users and enables them to include data in their reproduction materials.
 API commands can also be used to in a script for larger-than-memory data, as chunks of the data can be processed one by one instead of loading the whole data into memory first.
-
-
-### Benchmarks
-
-We built AmCAT on top of *Elasticsearch*.
-The main advantages of this search engine are that queries are executed extremely fast and advanced queries, including Boolean operators and wildcards, can be employed.^[
-We recognize that *Elasticsearch*'s current licence is not considered open-source, but we sympathize with [the reasons behind the change](https://web.archive.org/web/20230811152832/https://www.zdnet.com/article/elastic-changes-open-source-license-to-monetize-cloud-service-use/) and do not expect any impact on the users of our toolkit. It is also possible to use an older version of *Elasticsearch* that is fully open-source (i.e., below version *Elasticsearch* v7.11).]
-\autoref{fig:bench} shows the time it takes to execute the query above using a function that:
-
-- reads in a single `csv` file from ParlEE (local) [@ParlEE2022]
-- only filters this data when it is already in memory (memory)
-- queries a local instance of AmCAT using a filter and search string as above (amcat_query_local)
-- does the same, but with a remote instance (amcat_query_remote)
-
-![Benchmark comparison.\label{fig:bench}](media/bench.png)
-
-Making the request through AmCAT takes only half the time compared to filtering using `dplyr` and less than a third compared to reading in the `csv` file first.
-The full benchmark script can be found in our companion repository.
 
 ## Flexible Access control
 
@@ -148,17 +129,6 @@ We also provide a more comprehensive manual at <amcat.nl/book/>, which covers in
 
 We recommend to install AmCAT through the open-source application Docker.
 In our [`amcat4docker`](https://github.com/ccs-amsterdam/amcat4docker) repository, we provide several Docker Compose files that make it possible to get a full AmCAT instance running in minutes with no other dependecies than Docker itself.
-
-# Statement of need
-
-Sharing a collection of text data with other researchers comes with slightly different needs than sharing, for example, a survey data set.
-Researchers who want to use a data set for secondary analysis might want to explore it first to see if it contains relevant data;
-they might then want to filter said data set using keywords or search queries;
-text data nowadays come with limitations for re-distribution connected to copyright or privacy concerns, making alternative distribution avenues (such as only sharing metadata or pre-processed versions of text) necessary.
-Current infrastructure for sharing data, such as the Dataverse, were not built with these needs in mind, as they do not generally apply to the much smaller data sets that, for example, survey researchers use.
-In the current iteration of the *Amsterdam Content Analysis Toolkit* (AmCAT), we focused on filling these needs of the text-as-data community.
-In a time when access to data becomes more difficult due to APIs of social media platforms being shut down and media outlets starting to defend themselves more rigorously against scraping, the importance of sharing corpora for secondary analysis has suddenly surged.
-With the infrastructure software we present here, we hope to encourage the research community to embrace more widespread sharing of text data.
 
 
 # Acknowledgements
