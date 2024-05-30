@@ -1,0 +1,331 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names,table}{xcolor}
+%
+\documentclass[11pt,
+  english,
+  paper=a4,
+  captions=tableheading,
+  headings=standardclasses,
+]{scrartcl}
+
+\setlength{\parindent}{2em}
+
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage[footnotes=true,
+            underscores=false,
+            codeSpans=false,
+              hashEnumerators,
+              definitionLists,
+              inlineFootnotes,
+              smartEllipses,
+              fencedCode,
+              contentBlocks,
+              pipeTables,
+              tableCaptions,
+              relativeReferences,
+              citations]{markdown}
+
+
+% Table setup
+\usepackage{csquotes}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{calc}
+
+% Table captions on top
+\usepackage{float}
+\floatstyle{plaintop}
+\restylefloat{table}
+\usepackage[tableposition=top]{caption}
+
+% graphics
+
+\usepackage{graphicx}
+\setkeys{Gin}{width=\linewidth}
+\usepackage{authblk}
+
+\makeatletter
+\newcommand*{\Authors}{%
+  \AB@authors
+  }
+\newcommand{\Title}{%
+  \@title
+}
+\newcommand{\Date}{%
+ \@date
+}
+\makeatother
+
+
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+
+
+
+%
+% variables for title, author and date
+%
+
+
+\author{$for(author)$$author$$sep$ \and $endfor$}
+\affil{University of Vienna}
+
+\title{$title$}
+\subtitle{Introducing Meteor}
+
+\newcommand{\deliverable}{3.2}
+\date{$date$}
+
+
+
+\newcommand{\Deliverable}{Deliverable~\deliverable}
+\newcommand{\DeliverableShort}{D\deliverable}
+
+% References
+
+\usepackage{csquotes}
+\MakeOuterQuote{"}
+
+\usepackage[backend=biber,style=apa]{biblatex}
+\DeclareFieldFormat{apacase}{#1} % do not change to sentence case
+\addbibresource{bibliography.bib}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+
+\usepackage{xcolor}
+\definecolor{default-linkcolor}{HTML}{A50000}
+\definecolor{default-filecolor}{HTML}{A50000}
+\definecolor{default-citecolor}{HTML}{4077C0}
+\definecolor{default-urlcolor}{HTML}{4077C0}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle=\Title,
+  pdflang={en},
+  hidelinks,
+  breaklinks=true}
+
+\usepackage[margin=2.5cm,includehead=true,includefoot=true,centering,]{geometry}
+\usepackage{listings}
+\newcommand{\passthrough}[1]{#1}
+\lstset{defaultdialect=[5.3]Lua}
+\lstset{defaultdialect=[x86masm]Assembler}
+% add backlinks to footnote references, cf. https://tex.stackexchange.com/questions/302266/make-footnote-clickable-both-ways
+\usepackage{footnotebackref}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\usepackage[english]{babel}
+% get rid of language-specific shorthands (see #6817):
+\let\LanguageShortHands\languageshorthands
+\def\languageshorthands#1{}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+
+%%
+%% added
+%%
+
+
+%
+% for the background of titlepage
+%
+\usepackage{afterpage}
+\usepackage{tikz}
+\usepackage{geometry}
+\geometry{top=2.5cm,bottom=2.5cm,left=3.5cm,right=3.5cm}
+
+%
+% break urls
+%
+\PassOptionsToPackage{hyphens}{url}
+
+%
+% captions
+%
+\usepackage[font={stretch=1.2}, position=top, skip=4mm, labelfont=bf, singlelinecheck=false, justification=raggedright]{caption}
+\setcapindent{0em}
+
+
+\usepackage{libertine}
+\usepackage{sourcecodepro}
+
+
+%
+% heading color
+%
+\definecolor{heading-color}{RGB}{15,101,173}
+\addtokomafont{section}{\color{heading-color}}
+
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+
+% separate file for styling source code
+\input{code-styling}
+
+%
+% header and footer
+%
+\usepackage{scrlayer-scrpage}
+\usepackage{anyfontsize}
+\newpairofpagestyles{opted-header-footer}{
+  \clearpairofpagestyles
+  \ihead*{\DeliverableShort: \Title}
+  \chead*{}
+  \ohead*{}
+  \ifoot*{
+        \tikz[remember picture,overlay]
+        \node[yshift=1.7cm] at (current page.south) {
+            \includegraphics[width=\paperwidth]{assets/footer-background.pdf}
+            };
+        }
+  \cfoot*{\thepage}
+  \ofoot*{}
+  \addtokomafont{pageheadfoot}{\upshape}
+}
+
+%%
+%% end added
+%%
+
+\begin{document}
+
+%%
+%% begin titlepage
+%%
+\begin{titlepage}
+\tikz[remember picture,overlay] \node[inner sep=0pt] at (current page.center){\includegraphics[width=\paperwidth,height=\paperheight]{assets/background.pdf}};
+\newcommand{\colorRule}[3][black]{\textcolor[HTML]{#1}{\rule{#2}{#3}}}
+\begin{flushleft}
+\noindent
+\\[-1em]
+\color[HTML]{FFFFFF}
+\makebox[0pt][l]{\colorRule[360049]{1.3\textwidth}{0pt}}
+\par
+\noindent
+
+% The titlepage with a background image has other text spacing and text size
+{
+  \vfill
+  \vskip -12em
+  \noindent {\fontsize{72pt}{86pt}\selectfont \textbf{OPTED}} \\
+  \vskip 2em
+  \noindent {\huge \textbf{\Title}}
+    \vskip 1em
+  {\Large \Deliverable } %subtitle
+    \vskip 2em
+  \noindent {\Large \Authors \vskip 0.6em }
+  \vfill
+ }
+\end{flushleft}
+
+\end{titlepage}
+
+%%
+%% end titlepage
+%%
+
+
+\newpage
+
+\pagestyle{opted-header-footer}
+\pagenumbering{arabic} 
+
+\par
+\noindent
+\begin{flushleft}
+\noindent \large \textbf{Disclaimer} \\
+\normalsize 
+\noindent This project has received funding from the European Union’s Horizon 2020 research \& innovation programme under grant agreement No 951832. The document reflects only the authors’ views. The European Union is not liable for any use that may be made of the information contained herein.
+
+\vskip 0.5em
+\noindent \large \textbf{Dissemination level}
+
+\normalsize
+\noindent Public
+
+\vskip 0.5em
+\noindent \large \textbf{Type}
+
+\normalsize
+\noindent Report
+\end{flushleft}
+
+\vfill 
+
+\begin{center}
+
+\includegraphics[width=3cm]{assets/Flag_of_Europe.pdf}
+    
+\end{center}
+
+\newpage
+
+\begin{flushleft}
+
+\LARGE \textbf{OPTED} \\
+\normalsize Observatory for Political Texts in European Democracies: \\
+A European research infrastructure
+
+\vskip 2em
+
+\huge \textbf{\Title} \\
+\large \emph{\subtitle} \\
+\textbf{\Deliverable} \\
+
+\vskip 2em
+
+\large \textbf{Authors: \Authors}
+
+\vskip 2em
+
+\large \textbf{Due date:} \Date
+
+\end{flushleft}
+
+\newpage
+
+
+%
+% End of colophon
+%
+
+\tableofcontents
+
+\newpage
+
+\section*{Executive Summary}
+
+$body$
+
+
+\newpage
+\printbibliography
+
+\end{document}
